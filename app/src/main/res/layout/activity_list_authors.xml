@@ -1,0 +1,93 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ListAuthorsActivity"
+    android:orientation="vertical"
+    android:nestedScrollingEnabled="true">
+
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbarList"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#a181d2"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            android:layout_gravity="fill_horizontal"
+            android:elevation="4dp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/FirstScreenTitle"
+                android:textSize="27sp"
+                android:layout_gravity="center_vertical"
+                android:gravity="start"
+                android:id="@+id/titleMainScreen"
+                android:textColor="#FFFFFF"
+                android:layout_centerVertical="true" />
+
+            <android.support.v7.widget.SearchView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:layout_gravity="end"
+                android:id="@+id/search_view"
+                android:queryHint = "Поиск..."
+                android:layout_alignParentTop="false"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true" />
+            </android.support.v7.widget.Toolbar>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/authorsFrameLayout">
+    <ProgressBar
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:id="@+id/progressBarBeforeList"/>
+    <android.support.v7.widget.RecyclerView
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:id="@+id/recyclerAuthors"/>
+    </FrameLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/dontConnectLayout"
+        android:layout_gravity="center"
+        android:visibility="invisible">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/NoConnectionToWeb"
+            android:textColor="#000000"
+            android:textAlignment="center"
+            android:textSize="17sp" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/RepeatConnection"
+            android:id="@+id/repeatConnectionButton"
+            android:nestedScrollingEnabled="false"
+            android:onClick="onClickRepeatConnectionButton"/>
+
+    </LinearLayout>
+    </FrameLayout>
+</LinearLayout >

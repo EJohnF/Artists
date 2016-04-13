@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MusicAuthors</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_author">AuthorActivity</string>
+    <string name="FirstScreenTitle">Исполнители</string>
+    <string name="NoConnectionToWeb">Отсутствует подключение к интернету</string>
+    <string name="RepeatConnection">Повторить</string>
+</resources>
