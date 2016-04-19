@@ -1,5 +1,6 @@
 package fw.musicauthors;
 
+import android.database.Cursor;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
@@ -8,8 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.LinkedList;
 
 /**
@@ -21,82 +20,56 @@ public class Artist implements Comparable<Artist>{
     LinkedList<String> genres;
     int tracks;
     int albums;
-    URL link;
+    String link_string;
     String description;
-    URL toSmallCover;
-    URL toBigCover;
+    String smallCover_string;
+    String bigCover_string;
 
     public Artist(JSONObject json) {
-
         try {
             id = json.getInt("id");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
             name = json.getString("name");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        JSONArray genreses = null;
-        try {
-            genreses = json.getJSONArray("genres");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        genres = new LinkedList<>();
-        for (int i = 0; i < genreses.length(); i++) {
-            try {
-                genres.add(genreses.getString(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
+            JSONArray genreses = json.getJSONArray("genres");
+            genres = new LinkedList<>();
+            for (int i = 0; i < genreses.length(); i++) {
+                    genres.add(genreses.getString(i));
             }
-        }
-        try {
             tracks = json.getInt("tracks");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
             albums = json.getInt("albums");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
-            link = new URL(json.getString("link"));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
             description = json.getString("description");
             String cap = description.substring(0, 1).toUpperCase() + description.substring(1);
             description = cap;
+            JSONObject covers = json.getJSONObject("cover");
+            smallCover_string = covers.getString("small");
+            bigCover_string = covers.getString("big");
+            link_string = json.getString("link");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JSONObject covers = null;
-        try {
-            covers = json.getJSONObject("cover");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
-            toSmallCover = new URL(covers.getString("small"));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
-            toBigCover = new URL(covers.getString("big"));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    }
 
+    public Artist(Cursor cursor) {
+        id = cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ID));
+        String tempGenres = cursor.getString(cursor.getColumnIndex(DBHelper.KEY_GENRES));
+        genres = genresesFormString(tempGenres);
+        name = cursor.getString(cursor.getColumnIndex(DBHelper.KEY_NAME));
+
+        tracks = cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_ALBUMS));
+        albums = cursor.getInt(cursor.getColumnIndex(DBHelper.KEY_TRACKS));
+
+        link_string = cursor.getString(cursor.getColumnIndex(DBHelper.KEY_LINK));
+        smallCover_string = cursor.getString(cursor.getColumnIndex(DBHelper.KEY_SMALLPIC));
+        bigCover_string = cursor.getString(cursor.getColumnIndex(DBHelper.KEY_BIGPIC));
+        description = cursor.getString(cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION));
+    }
+
+    public LinkedList<String> genresesFormString(String st){
+        LinkedList<String> res = new LinkedList<String>();
+        String[] strings = st.split(", ");
+        for (int i = 0; i < strings.length; i++){
+            res.add(strings[i]);
+        }
+        return res;
     }
 
     @Override
@@ -107,10 +80,10 @@ public class Artist implements Comparable<Artist>{
                 ", name='" + name + '\'' +
                 ", genres=" + genres +
                 ", tracks=" + tracks +
-                ", link=" + link +
+                ", link=" + link_string +
                 ", description='" + description + '\'' +
-                ", toSmallCover=" + toSmallCover +
-                ", toBigCover=" + toBigCover +
+                ", smallCover=" + smallCover_string +
+                ", bigCover=" + bigCover_string +
                 '}';
     }
 
@@ -126,16 +99,26 @@ public class Artist implements Comparable<Artist>{
     }
 
     public String getAlbumTrackString() {
-        String res = albums + " альбомов, " + tracks + " песен";
+        String alb = "альбомов";
+        String track = "песен";
+        if ( (albums%10 == 1 && albums>20) || (albums == 1))
+                alb = "альбом";
+        if (( albums%10 > 1 && albums%10 < 5 && albums > 20) || (albums > 1 && albums < 5))
+                alb = "альбома";
+        if ( (tracks%10 == 1 && tracks>20) || (tracks == 1))
+            track = "песня";
+        if (( tracks%10 > 1 && tracks%10 < 5 && tracks > 20) || (tracks > 1 && tracks < 5))
+            track = "песни";
+        String res = albums + " " + alb + ", " + tracks + " " + track;
         return res;
     }
 
     public void setSmallPicture(ImageView imageView) {
-        Picasso.with(imageView.getContext()).load(String.valueOf(toSmallCover)).into(imageView);
+        Picasso.with(imageView.getContext()).load(smallCover_string).into(imageView);
     }
 
     public void setBigPicture(ImageView imageView) {
-        Picasso.with(imageView.getContext()).load(String.valueOf(toBigCover)).into(imageView);
+        Picasso.with(imageView.getContext()).load(bigCover_string).into(imageView);
     }
 
     @Override
@@ -143,9 +126,11 @@ public class Artist implements Comparable<Artist>{
         return name.compareTo(another.name);
 
     }
+
     public boolean hasInName(String st){
         String s1 = name.toLowerCase();
         String s2 = st.toLowerCase();
         return s1.contains(s2);
     }
+
 }

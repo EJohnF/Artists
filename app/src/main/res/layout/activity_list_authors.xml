@@ -37,7 +37,8 @@
                 android:queryHint = "Поиск..."
                 android:layout_alignParentTop="false"
                 android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:foreground="#ffffff" />
             </android.support.v7.widget.Toolbar>
 
 
