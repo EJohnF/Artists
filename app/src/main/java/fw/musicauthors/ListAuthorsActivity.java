@@ -7,8 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.transition.Fade;
-import android.transition.TransitionInflater;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,8 +44,6 @@ public class ListAuthorsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_authors);
 
-        Fade fade = (Fade) TransitionInflater.from(this).inflateTransition(R.transition.activity_fade);
-        getWindow().setExitTransition(fade);
 
         setInitialValues();
         initiateActionBar();
@@ -81,6 +77,7 @@ public class ListAuthorsActivity extends AppCompatActivity {
             @Override
             public void onUpgrade(ArrayList<Artist> artists) {
                 allAuthorthFrameLayout.setVisibility(View.VISIBLE);
+                progressBarBeforeList.setVisibility(View.INVISIBLE);
                 dontConnectionLayout.setVisibility(View.INVISIBLE);
                 ArtistsContainer.instance.setArtists(artists);
                 setListForRecyclerAuthorsView(artists);
