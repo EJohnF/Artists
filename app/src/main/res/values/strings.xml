@@ -1,14 +1,11 @@
 <resources>
-    <string name="app_name">MusicAuthors</string>
+    <string name="app_name">Artists</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="title_activity_author">AuthorActivity</string>
     <string name="FirstScreenTitle">Исполнители</string>
     <string name="NoConnectionToWeb">Отсутствует подключение к интернету</string>
     <string name="RepeatConnection">Повторить</string>
     <string name="biographi">Биография</string>
-
     <string name="title_activity_fullscreen_image">FullscreenImageActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>

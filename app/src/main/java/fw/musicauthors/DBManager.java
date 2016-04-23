@@ -164,6 +164,7 @@ public class DBManager{
         protected Integer doInBackground(String... urls) {
             // получаем данные с внешнего ресурса
             JSONArray jsonArray = null;
+            //Get jsonArray from server
             try {
                 URL url = new URL(urls[0]);
 
@@ -189,6 +190,7 @@ public class DBManager{
             if (jsonArray == null)
                 return 0;
             artists = new ArrayList<>(350);
+            //make a list of downloaded artists
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
                     artists.add(new Artist(jsonArray.getJSONObject(i)));
@@ -197,6 +199,7 @@ public class DBManager{
                 }
             }
             Collections.sort(artists);
+            // count how many new is in the server
             int numberUpdates = 0;
             for (int i = 0; i < artists.size(); i++) {
                 numberUpdates += putArtistToDB(artists.get(i));
