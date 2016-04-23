@@ -72,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Биография"
+                android:text="@string/biographi"
                 android:id="@+id/textView3"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
@@ -89,6 +89,18 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
                 android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/viewLinkToSite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
         </LinearLayout>
     </ScrollView>
     </LinearLayout>

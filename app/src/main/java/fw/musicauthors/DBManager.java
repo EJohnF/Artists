@@ -20,6 +20,7 @@ import java.util.LinkedList;
 
 /**
  * Created by John on 19.04.2016.
+ * I assume that id field is unique for each artist
  */
 public class DBManager{
     private DBHelper helper;
@@ -107,6 +108,10 @@ public class DBManager{
         loader.execute(ListAuthorsActivity.URL_TO_JSON);
     }
 
+    /**
+     * if updates was more than 1
+     * @param numberUpdates
+     */
     private void finishDownload(int numberUpdates){
         if (numberUpdates > 0) {
             notifyUpgradeListeners(artists);
@@ -114,35 +119,43 @@ public class DBManager{
     }
 
     /**
-     *
+     * try to update or insert artist to BD
      * @param artist
-     * @return 0 if update, 1 if insert
+     * @return 0 if nothing change, 1 if insert or update
      */
     public int putArtistToDB(Artist artist){
         ContentValues values = new ContentValues();
+        artist.compactToContentValue(values);
 
-        values.put(DBHelper.KEY_ID, artist.id);
-        values.put(DBHelper.KEY_NAME, artist.name);
-        values.put(DBHelper.KEY_GENRES, artist.getGenresesString());
-        values.put(DBHelper.KEY_ALBUMS, artist.albums);
-        values.put(DBHelper.KEY_TRACKS, artist.tracks);
-        values.put(DBHelper.KEY_DESCRIPTION, artist.description);
-        values.put(DBHelper.KEY_LINK, artist.link_string);
-        values.put(DBHelper.KEY_SMALLPIC, artist.smallCover_string);
-        values.put(DBHelper.KEY_BIGPIC, artist.bigCover_string);
-
-        int n = DBwrite.update(DBHelper.TABLE_ARTISTS, values, DBHelper.KEY_ID + " = " + artist.id, null);
-        if (n == 0) {
+        Cursor cursor = DBread.rawQuery("SELECT * FROM " + DBHelper.TABLE_ARTISTS + " WHERE " + DBHelper.KEY_ID + " = " + artist.id, null);
+        if (cursor.getCount() != 0) {
+            // check, something need to change or not
+            boolean b1;
+            try {
+                b1 = artist.equals(cursor.getExtras());
+            }
+            catch (NullPointerException ex){
+                ex.printStackTrace();
+                b1 = false;
+            }
+            //something need to change
+            if (!b1) {
+                DBwrite.update(DBHelper.TABLE_ARTISTS, values, DBHelper.KEY_ID + " = " + artist.id, null);
+                return 1;
+            }
+        }
+        else {
+            //if the id is not found
             DBwrite.insert(DBHelper.TABLE_ARTISTS, null, values);
             return 1;
         }
-        else {
-            return 0;
-        }
-
+        return 0;
     }
 
 
+    /**
+     * Perfome download the data from server and update BD as AnsyTask
+     */
     public class LoadJSON extends AsyncTask<String, Void, Integer> {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -183,6 +196,7 @@ public class DBManager{
                     e.printStackTrace();
                 }
             }
+            Collections.sort(artists);
             int numberUpdates = 0;
             for (int i = 0; i < artists.size(); i++) {
                 numberUpdates += putArtistToDB(artists.get(i));

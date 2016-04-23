@@ -37,6 +37,9 @@ public class ListAuthorsActivity extends AppCompatActivity {
     UpdateControl updateControl;
     Context context;
 
+    private float x1, x2;
+    static final int MIN_DISTANCE = 100;
+
     public static String URL_TO_JSON = "http://download.cdn.yandex.net/mobilization-2016/artists.json";
 
     @Override
@@ -52,27 +55,29 @@ public class ListAuthorsActivity extends AppCompatActivity {
         updateControl = new UpdateControl();
         updateControl.everyHalfHour();
     }
+
     private void initiateActionBar() {
-            SearchView searchView = (SearchView) findViewById(R.id.search_view);
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
+        SearchView searchView = (SearchView) findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
 
-                    return false;
-                }
+                return false;
+            }
 
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    ArtistsContainer.instance.makeCurrentBySearch(newText);
-                    setListForRecyclerAuthorsView(ArtistsContainer.instance.getArtists());
-                    return false;
-                }
-            });
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                ArtistsContainer.instance.makeCurrentBySearch(newText);
+                setListForRecyclerAuthorsView(ArtistsContainer.instance.getCurrentArtists());
+                return false;
+            }
+        });
     }
 
-    private void setInitialValues(){
+    private void setInitialValues() {
         context = this;
         dbManager = new DBManager(this);
+
         dbManager.addUpgradeListener(new DBManager.IDBUpgrade() {
             @Override
             public void onUpgrade(ArrayList<Artist> artists) {
@@ -92,29 +97,29 @@ public class ListAuthorsActivity extends AppCompatActivity {
             }
         });
 
-        progressBarBeforeList =  (ProgressBar)findViewById(R.id.progressBarBeforeList);
+        progressBarBeforeList = (ProgressBar) findViewById(R.id.progressBarBeforeList);
         dontConnectionLayout = (LinearLayout) findViewById(R.id.dontConnectLayout);
         allAuthorthFrameLayout = (FrameLayout) findViewById(R.id.authorsFrameLayout);
         mainTitleTextView = (TextView) findViewById(R.id.titleMainScreen);
 
 
-        if (dbManager.isEmpty()){
+        if (dbManager.isEmpty()) {
             progressBarBeforeList.setVisibility(View.VISIBLE);
-        }
-        else{
+        } else {
             progressBarBeforeList.setVisibility(View.INVISIBLE);
         }
         dontConnectionLayout.setVisibility(View.INVISIBLE);
 
         mGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override public boolean onSingleTapUp(MotionEvent e) {
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
                 return true;
             }
         });
     }
 
-    private void setInitialRecyclerView(){
-        recyclerAuthors = (RecyclerView)findViewById(R.id.recyclerAuthors);
+    private void setInitialRecyclerView() {
+        recyclerAuthors = (RecyclerView) findViewById(R.id.recyclerAuthors);
         // set Layout manager
         LinearLayoutManager llm = new LinearLayoutManager(this);
         recyclerAuthors.setLayoutManager(llm);
@@ -130,8 +135,8 @@ public class ListAuthorsActivity extends AppCompatActivity {
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
                 View childView = rv.findChildViewUnder(e.getX(), e.getY());
                 if (childView != null && mGestureDetector.onTouchEvent(e)) {
+                    ArtistsContainer.instance.setSelectedArtist(rv.getChildPosition(childView));
                     Intent myIntent = new Intent(ListAuthorsActivity.this, AuthorActivity.class);
-                    myIntent.putExtra("Author", rv.getChildPosition(childView));
                     ListAuthorsActivity.this.startActivity(myIntent);
                     return true;
                 }
@@ -152,6 +157,7 @@ public class ListAuthorsActivity extends AppCompatActivity {
 
     /**
      * Update recycler view for show the other list of artists (for example in case of searching)
+     *
      * @param artists list of artists
      */
     private void setListForRecyclerAuthorsView(ArrayList<Artist> artists) {
@@ -161,6 +167,7 @@ public class ListAuthorsActivity extends AppCompatActivity {
 
     /**
      * For repeat connection to server for JSON-data
+     *
      * @param view
      */
     public void onClickRepeatConnectionButton(View view) {
@@ -171,7 +178,7 @@ public class ListAuthorsActivity extends AppCompatActivity {
 
     public void updateData() {
         dbManager.download();
-        Toast.makeText(this,"Обновление данных", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Обновление данных", Toast.LENGTH_SHORT).show();
     }
 
     public class UpdateControl {
@@ -182,14 +189,33 @@ public class ListAuthorsActivity extends AppCompatActivity {
             final Runnable notifier = new Runnable() {
                 public void run() {
                     updateData();
-                }};
+                }
+            };
             final ScheduledFuture notifierHandle =
                     scheduler.scheduleAtFixedRate(notifier, 10, 10, SECONDS);
             scheduler.schedule(new Runnable() {
-                public void run () {
+                public void run() {
                     notifierHandle.cancel(true);
                 }
-            },1*60,SECONDS);
+            }, 30 * 60, SECONDS);
         }
+    }
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        super.dispatchTouchEvent(event);
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                x2 = event.getX();
+                float deltaX = x1 - x2;
+                if (deltaX > MIN_DISTANCE) {
+                    Intent myIntent = new Intent(ListAuthorsActivity.this, AuthorActivity.class);
+                    ListAuthorsActivity.this.startActivity(myIntent);
+                }
+                break;
+        }
+        return false;
     }
 }

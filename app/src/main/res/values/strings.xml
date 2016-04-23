@@ -7,4 +7,10 @@
     <string name="FirstScreenTitle">Исполнители</string>
     <string name="NoConnectionToWeb">Отсутствует подключение к интернету</string>
     <string name="RepeatConnection">Повторить</string>
+    <string name="biographi">Биография</string>
+
+    <string name="title_activity_fullscreen_image">FullscreenImageActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
 </resources>

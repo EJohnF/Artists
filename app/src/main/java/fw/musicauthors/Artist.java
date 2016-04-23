@@ -1,6 +1,8 @@
 package fw.musicauthors;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
@@ -20,10 +22,10 @@ public class Artist implements Comparable<Artist>{
     LinkedList<String> genres;
     int tracks;
     int albums;
-    String link_string;
-    String description;
-    String smallCover_string;
-    String bigCover_string;
+    String link_string = "";
+    String description = "";
+    String smallCover_string = "";
+    String bigCover_string = "";
 
     public Artist(JSONObject json) {
         try {
@@ -72,6 +74,10 @@ public class Artist implements Comparable<Artist>{
         return res;
     }
 
+    /**
+     * Make one string which complitly descryde everything about author
+     * @return
+     */
     @Override
     public String toString() {
         return "Author{" +
@@ -87,6 +93,10 @@ public class Artist implements Comparable<Artist>{
                 '}';
     }
 
+    /**
+     * Make a string all genreses of Artists with slit by ", "
+     * @return
+     */
     public String getGenresesString() {
         String res = "";
         if (genres.size() > 0) {
@@ -98,39 +108,102 @@ public class Artist implements Comparable<Artist>{
         return res;
     }
 
+    /**
+     * Make a string with pattern: № альбом(-ов)(-а), № песен(-я)(-и)
+     * @return
+     */
     public String getAlbumTrackString() {
         String alb = "альбомов";
         String track = "песен";
-        if ( (albums%10 == 1 && albums>20) || (albums == 1))
+        if (albums%10 == 1 && albums%100 != 11)
                 alb = "альбом";
-        if (( albums%10 > 1 && albums%10 < 5 && albums > 20) || (albums > 1 && albums < 5))
+        if ( albums%10 > 1 && albums%10 < 5  && (albums%100 < 10 || albums % 100 >20))
                 alb = "альбома";
-        if ( (tracks%10 == 1 && tracks>20) || (tracks == 1))
+        if (tracks%10 == 1 && tracks%100 != 11)
             track = "песня";
-        if (( tracks%10 > 1 && tracks%10 < 5 && tracks > 20) || (tracks > 1 && tracks < 5))
+        if ( tracks%10 > 1 && tracks%10 < 5  && (tracks%100 < 10 || tracks % 100 >20))
             track = "песни";
         String res = albums + " " + alb + ", " + tracks + " " + track;
         return res;
     }
 
+    /**
+     * if small Picture present, method set it to imageView
+     * @param imageView
+     */
     public void setSmallPicture(ImageView imageView) {
-        Picasso.with(imageView.getContext()).load(smallCover_string).into(imageView);
+        if (smallCover_string != "")
+            Picasso.with(imageView.getContext()).load(smallCover_string).into(imageView);
     }
 
+    /**
+     * if big picture present, method set it to imageView
+     * @param imageView
+     */
     public void setBigPicture(ImageView imageView) {
         Picasso.with(imageView.getContext()).load(bigCover_string).into(imageView);
     }
 
+    /**
+     * Comparing of two Artists corresponding their name field.
+     * @param another
+     * @return
+     */
     @Override
     public int compareTo(Artist another) {
         return name.compareTo(another.name);
 
     }
 
+    /**
+     * Check, the input st is a substring of name Artist or not
+     * @param st
+     * @return
+     */
     public boolean hasInName(String st){
         String s1 = name.toLowerCase();
         String s2 = st.toLowerCase();
         return s1.contains(s2);
     }
 
+    public void compactToContentValue(ContentValues values) {
+        values.put(DBHelper.KEY_ID, id);
+        values.put(DBHelper.KEY_NAME, name);
+        values.put(DBHelper.KEY_GENRES, getGenresesString());
+        values.put(DBHelper.KEY_ALBUMS, albums);
+        values.put(DBHelper.KEY_TRACKS, tracks);
+        values.put(DBHelper.KEY_DESCRIPTION, description);
+        values.put(DBHelper.KEY_LINK, link_string);
+        values.put(DBHelper.KEY_SMALLPIC, smallCover_string);
+        values.put(DBHelper.KEY_BIGPIC, bigCover_string);
+
+    }
+
+    public boolean equals(Bundle extras) throws NullPointerException{
+        if (!extras.getString(DBHelper.KEY_NAME).equals(name)){
+            return false;
+        }
+        if (!extras.getString(DBHelper.KEY_GENRES).equals(getGenresesString())){
+            return false;
+        }
+        if (extras.getInt(DBHelper.KEY_ALBUMS) != albums){
+            return false;
+        }
+        if (extras.getInt(DBHelper.KEY_TRACKS) != tracks){
+            return false;
+        }
+        if (!extras.getString(DBHelper.KEY_DESCRIPTION).equals(description)){
+            return false;
+        }
+        if (!extras.getString(DBHelper.KEY_LINK).equals(link_string)){
+            return false;
+        }
+        if (!extras.getString(DBHelper.KEY_SMALLPIC).equals(smallCover_string)){
+            return false;
+        }
+        if (!extras.getString(DBHelper.KEY_BIGPIC).equals(bigCover_string)){
+            return false;
+        }
+        return true;
+    }
 }
