@@ -195,8 +195,14 @@ public class Artist implements Comparable<Artist>{
         if (!extras.getString(DBHelper.KEY_DESCRIPTION).equals(description)){
             return false;
         }
-        if (!extras.getString(DBHelper.KEY_LINK).equals(link_string)){
-            return false;
+        try {
+            if (!extras.getString(DBHelper.KEY_LINK).equals(link_string)) {
+                return false;
+            }
+        }
+        catch (NullPointerException ex){
+            //it is because link is often unpresent
+            ex.printStackTrace();
         }
         if (!extras.getString(DBHelper.KEY_SMALLPIC).equals(smallCover_string)){
             return false;
